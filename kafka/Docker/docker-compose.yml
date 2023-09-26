@@ -1,0 +1,36 @@
+version: '3'
+networks:
+  nt_norm:
+    driver: bridge
+
+services:
+  zookeeper:
+    image: bitnami/zookeeper:latest
+    container_name: zookeeper_cont
+    ports:
+    - 2181:2181
+    environment:
+    - ALLOW_ANONYMOUS_LOGIN=yes
+    networks:
+    - nt_norm
+
+  kafka:
+    image: bitnami/kafka:latest
+    container_name: kafka_cont
+    ports:
+    - 9092:9092
+    - 19093:19093
+    environment:
+    - KAFKA_BROKER_ID=1
+    - KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper:2181
+    - ALLOW_PLAINTEXT_LISTENER=yes
+    - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CLIENT:PLAINTEXT,EXTERNAL:PLAINTEXT
+    - KAFKA_CFG_LISTENERS=CLIENT://:9092,EXTERNAL://:19093
+    - KAFKA_CFG_ADVERTISED_LISTENERS=CLIENT://kafka:9092,EXTERNAL://localhost:19093
+    - KAFKA_CFG_INTER_BROKER_LISTENER_NAME=CLIENT
+    depends_on:
+    - zookeeper
+    networks:
+    - nt_norm
+
+
